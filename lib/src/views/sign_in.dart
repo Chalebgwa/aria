@@ -1,7 +1,7 @@
-import 'dart:html';
-
 import 'package:aria/src/layouts/form_layout.dart';
 import 'package:aria/src/painters.dart';
+import 'package:aria/src/views/home/home_screen.dart';
+import 'package:aria/src/views/sign_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -131,7 +131,10 @@ class SignInPage extends StatelessWidget {
                   ),
                   Spacer(),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => HomeScreen()));
+                    },
                     child: Text(
                       "Sign In",
                       style: TextStyle(
@@ -153,7 +156,14 @@ class SignInPage extends StatelessWidget {
                   ),
                   Container(
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SignUpPage(),
+                          ),
+                        );
+                      },
                       child: const Text("Create Account"),
                     ),
                   ),
