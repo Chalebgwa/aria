@@ -6,7 +6,6 @@ import 'package:aria/models/schema_model.dart';
 import 'package:aria/src/constants.dart';
 import 'package:aria/src/database.dart';
 import 'package:aria/src/painters.dart';
-import 'package:aria/src/views/form_view.dart';
 import 'package:aria/src/views/home/chat_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,23 +13,62 @@ import 'package:badges/badges.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:provider/provider.dart';
+import 'package:im_stepper/main.dart';
+import 'package:im_stepper/stepper.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
-
-  static const String routeName = "/home";
+class FormView extends StatefulWidget {
+  const FormView({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<FormView> createState() => _FormViewState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  late Auth auth;
+class _FormViewState extends State<FormView> {
+  late PermitForm form;
+  List<List<Widget>> pages = [];
+  double currentPage = 0;
+  final PageController _pageController = PageController();
+
+  void next() {
+    if (currentPage - 1 < pages.length) {
+      setState(() {
+        currentPage++;
+      });
+    }
+    _pageController.nextPage(
+        duration: const Duration(
+          microseconds: 3000,
+        ),
+        curve: Curves.bounceIn);
+  }
+
+  void prev() {
+    if (currentPage > 0) {
+      setState(() {
+        currentPage--;
+      });
+    }
+    _pageController.previousPage(
+        duration: const Duration(
+          microseconds: 3000,
+        ),
+        curve: Curves.bounceIn);
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    auth = Provider.of<Auth>(context);
+    form = Provider.of<PermitForm>(context);
+    pages = [];
+
+    for (var i = 0; i < form.fields.length; i += 3) {
+      pages.add(
+        form.fields.sublist(
+          i,
+          i + 3 > form.fields.length ? form.fields.length : i + 3,
+        ),
+      );
+    }
   }
 
   @override
@@ -136,22 +174,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        Text(
-                          "Welcome",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 40.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          "to Botswana's ePermit Services",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.w100,
-                          ),
-                        ),
                         SizedBox(
                           height: 20.h,
                         ),
@@ -164,105 +186,64 @@ class _HomeScreenState extends State<HomeScreen> {
                             fit: BoxFit.cover,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: !checkDeskTop(context) ? 300.w : 160.w,
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.r)),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "Search Permit",
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.r),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 30.w),
-                    child: Row(
-                      children: [
                         Text(
-                          "Permits",
+                          form.schema.formName,
                           style: TextStyle(
-                            fontSize: 20.sp,
+                            color: Colors.white,
+                            fontSize: 40.sp,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  FutureBuilder(
-                      future: Database.getSchemas(),
-                      builder:
-                          (context, AsyncSnapshot<List<SchemaModel>> snapshot) {
-                        if (!snapshot.hasData) {
-                          return Container(
-                            alignment: Alignment.center,
-                            height: 200.h,
-                            child: Text(
-                              "No Permits Listed",
-                              style: TextStyle(
-                                fontSize: 30.sp,
-                              ),
+                  NumberStepper(
+                    steppingEnabled: false,
+                    activeStep: currentPage.toInt(),
+                    numbers: List.generate(pages.length, (index) => index + 1),
+                    lineColor: Colors.green,
+                    activeStepBorderColor: Colors.green,
+                    stepColor: Colors.white,
+                    numberStyle: const TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                  Container(
+                    height: 300.h,
+                    width: !checkDeskTop(context) ? 300.w : 150.w,
+                    child: _buildPages(),
+                  ),
+                  SizedBox(
+                    width: !checkDeskTop(context) ? 300.w : 150.w,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        if (currentPage < pages.length - 1)
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                fixedSize: Size(50.w, 40.h),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.r))),
+                            onPressed: prev,
+                            child: const Icon(
+                              FontAwesomeIcons.caretLeft,
                             ),
-                          );
-                        }
-
-                        return Wrap(
-                          runAlignment: WrapAlignment.start,
-                          crossAxisAlignment: WrapCrossAlignment.start,
-                          children: [
-                            for (SchemaModel item in snapshot.data ?? [])
-                              _buildPermitForm(item),
-                          ],
-                        );
-                      }),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 30.w),
-                    child: Row(
-                      children: [
-                        Text(
-                          "My Permits",
-                          style: TextStyle(
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.bold,
+                          ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              fixedSize: Size(50.w, 40.h),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.r),
+                              )),
+                          onPressed: next,
+                          child: Icon(
+                            currentPage < pages.length - 1
+                                ? FontAwesomeIcons.caretRight
+                                : FontAwesomeIcons.save,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Wrap(
-                    children: [
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20.h,
                   ),
                   ClipPath(
                     clipper: WaveClipperTwo(reverse: true),
@@ -299,89 +280,20 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Widget _buildPermitForm(SchemaModel model) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (c) => ChangeNotifierProvider<PermitForm>(
-              create: (_) => PermitForm(model, auth.currentUser?.uid ?? "", ""),
-              child: const FormView(),
-            ),
-          ),
-        );
-      },
-      child: Padding(
-        padding: EdgeInsets.all(5.w),
-        child: Card(
-          elevation: 2,
-          margin: EdgeInsets.zero,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: SizedBox(
-            height: checkDeskTop(context) ? 120.h : 100.h,
-            width: checkDeskTop(context) ? 120.h : 100.h,
+  Widget _buildPages() {
+    return PageView.builder(
+        itemCount: pages.length,
+        allowImplicitScrolling: false,
+        controller: _pageController,
+        itemBuilder: (context, i) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.cottage,
-                  color: Colors.green,
-                  size: checkDeskTop(context) ? 10.w : 30.w,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Text(
-                    model.formName,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: pages[i],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPermit() {
-    return Padding(
-      padding: EdgeInsets.all(5.w),
-      child: Card(
-        elevation: 2,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: SizedBox(
-          height: checkDeskTop(context) ? 120.h : 100.h,
-          width: checkDeskTop(context) ? 120.h : 100.h,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.cottage,
-                color: Colors.green,
-                size: checkDeskTop(context) ? 10.w : 30.w,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Text(
-                  "Permit",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+          );
+        });
   }
 }

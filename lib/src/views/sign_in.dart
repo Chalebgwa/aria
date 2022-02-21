@@ -1,3 +1,4 @@
+import 'package:aria/controllers/auth.dart';
 import 'package:aria/src/layouts/form_layout.dart';
 import 'package:aria/src/painters.dart';
 import 'package:aria/src/views/home/home_screen.dart';
@@ -5,6 +6,7 @@ import 'package:aria/src/views/sign_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:provider/provider.dart';
 
 ///Displays landing page with navigation to a sign in / sign up screen
 
@@ -16,6 +18,7 @@ class SignInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final Auth auth = Provider.of<Auth>(context);
     bool isDesktop = MediaQuery.of(context).size.width >= 1100;
     return SafeArea(
       child: Scaffold(
@@ -132,8 +135,7 @@ class SignInPage extends StatelessWidget {
                   Spacer(),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => HomeScreen()));
+                      Navigator.pushNamed(context, HomeScreen.routeName);
                     },
                     child: Text(
                       "Sign In",
