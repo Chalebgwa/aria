@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 
 class Database {
   static const String URL =
-      "http://localhost:5001/permit-management/us-central1/api/";
+      "https://us-central1-permit-management.cloudfunctions.net/api";
 
   static Future<void> createUser(User user, password) async {
     var url = URL + "register";
