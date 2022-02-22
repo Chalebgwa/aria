@@ -2,6 +2,7 @@ import 'package:aria/controllers/auth.dart';
 import 'package:aria/src/views/home/chat_view.dart';
 import 'package:aria/src/views/home/home_screen.dart';
 import 'package:aria/src/views/landing.dart';
+import 'package:aria/src/views/payments.dart';
 import 'package:aria/src/views/sign_in.dart';
 import 'package:aria/util/theme.dart';
 import 'package:flutter/material.dart';
@@ -95,6 +96,9 @@ class MyApp extends StatelessWidget {
                         break;
                       case SettingsView.routeName:
                         page = SettingsView(controller: settingsController);
+                        break;
+                      case Payments.routeName:
+                        page = Payments();
                         break;
 
                       default:

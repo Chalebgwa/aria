@@ -2,12 +2,14 @@ import 'dart:math';
 
 import 'package:aria/controllers/auth.dart';
 import 'package:aria/controllers/form_generator.dart';
+import 'package:aria/models/form_mdel.dart';
 import 'package:aria/models/schema_model.dart';
 import 'package:aria/src/constants.dart';
 import 'package:aria/src/database.dart';
 import 'package:aria/src/painters.dart';
 import 'package:aria/src/views/form_view.dart';
 import 'package:aria/src/views/home/chat_view.dart';
+import 'package:aria/src/views/payments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:badges/badges.dart';
@@ -106,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   elevation: 3,
                                   badgeColor: Theme.of(context).primaryColor,
                                   badgeContent: const Text(
-                                    "1",
+                                    "0",
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   child: const Icon(
@@ -117,18 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               SizedBox(
                                 width: checkDeskTop(context) ? 10.w : 30.w,
-                              ),
-                              Badge(
-                                badgeContent: const Text(
-                                  "1",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                badgeColor: Theme.of(context).primaryColor,
-                                child: Icon(
-                                  FontAwesomeIcons.user,
-                                  color: Colors.white,
-                                  size: 30.sp,
-                                ),
                               ),
                               SizedBox(
                                 width: 20.w,
@@ -190,16 +180,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 30.w),
-                    child: Row(
-                      children: [
-                        Text(
-                          "Permits",
-                          style: TextStyle(
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      "Permits",
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   FutureBuilder(
@@ -236,31 +222,36 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 30.w),
-                    child: Row(
-                      children: [
-                        Text(
-                          "My Permits",
-                          style: TextStyle(
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      "My Permits",
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  Wrap(
-                    children: [
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                      _buildPermit(),
-                    ],
-                  ),
+                  FutureBuilder<List<Map>>(
+                      future: Database.getPermits(auth.currentUser?.uid ?? ""),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData ||
+                            (snapshot.data?.isEmpty ?? true)) {
+                          return Container(
+                            alignment: Alignment.center,
+                            height: 200.h,
+                            child: Text(
+                              "No Permits Listed",
+                              style: TextStyle(
+                                fontSize: 30.sp,
+                              ),
+                            ),
+                          );
+                        }
+                        return Wrap(
+                          children: [
+                            for (var item in snapshot.data ?? []) _buildPermit()
+                          ],
+                        );
+                      }),
                   SizedBox(
                     height: 20.h,
                   ),
@@ -306,7 +297,8 @@ class _HomeScreenState extends State<HomeScreen> {
           context,
           MaterialPageRoute(
             builder: (c) => ChangeNotifierProvider<PermitForm>(
-              create: (_) => PermitForm(model, auth.currentUser?.uid ?? "", ""),
+              create: (_) =>
+                  PermitForm(model, auth.currentUser?.uid ?? "", "", auth),
               child: const FormView(),
             ),
           ),

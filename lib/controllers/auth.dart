@@ -9,10 +9,11 @@ enum AuthState { LOGGEDIN, LOGGEDOUT }
 
 class Auth extends ChangeNotifier {
   User? currentUser;
+
   AuthState state = AuthState.LOGGEDOUT;
   List<SchemaModel> schemas = [];
 
-  void login(String email, String password) async {
+  Future<void> login(String email, String password) async {
     currentUser = await Database.login(email, password);
     notifyListeners();
   }

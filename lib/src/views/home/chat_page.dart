@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:aria/src/constants.dart';
+import 'package:aria/src/views/payments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -154,13 +155,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      endDrawer: Drawer(
-        child: Container(
-          color: Colors.red,
-          height: double.infinity,
-          width: 360.h,
-        ),
-      ),
+      endDrawer: Drawer(child: Payments()),
       appBar: AppBar(
         actions: [
           IconButton(

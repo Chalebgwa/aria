@@ -1,9 +1,9 @@
 class Permit {
-  final String formName;
-  final String formId;
-  final String applicantId;
-  final String timestamp;
-  final String officialID;
+  final String? formName;
+  final String? formId;
+  final String? applicantId;
+  final String? timestamp;
+  final String? officialID;
   final Map<String, dynamic> data;
 
   Permit({
@@ -16,14 +16,18 @@ class Permit {
   });
 
   toMap() {
-    return {
-      "formName": formName,
+    final defaults = <String, dynamic>{
+      "approval_state": false,
+      "timestamp": DateTime.now().toString(),
+      "published": true,
+    };
+    return <String, dynamic>{
+      "formName": formName?.replaceFirst(" ", "_"),
       "formId": formId,
       "applicantId": applicantId,
       "timestamp": timestamp,
       "officialID": officialID,
-      "data": data,
-    };
+    }..addAll(data..addAll(defaults));
   }
 
   fromMap() {}

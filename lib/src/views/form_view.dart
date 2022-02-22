@@ -209,7 +209,7 @@ class _FormViewState extends State<FormView> {
                     ),
                   ),
                   Container(
-                    height: 300.h,
+                    height: 400.h,
                     width: !checkDeskTop(context) ? 300.w : 150.w,
                     child: _buildPages(),
                   ),
@@ -218,24 +218,27 @@ class _FormViewState extends State<FormView> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        if (currentPage < pages.length - 1)
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                fixedSize: Size(50.w, 40.h),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30.r))),
-                            onPressed: prev,
-                            child: const Icon(
-                              FontAwesomeIcons.caretLeft,
-                            ),
-                          ),
+                        //  if (currentPage < pages.length - 1)
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               fixedSize: Size(50.w, 40.h),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.r),
-                              )),
-                          onPressed: next,
+                                  borderRadius: BorderRadius.circular(30.r))),
+                          onPressed: prev,
+                          child: const Icon(
+                            FontAwesomeIcons.caretLeft,
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: Size(50.w, 40.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.r),
+                            ),
+                          ),
+                          onPressed: currentPage < pages.length - 1
+                              ? next
+                              : form.submit,
                           child: Icon(
                             currentPage < pages.length - 1
                                 ? FontAwesomeIcons.caretRight
@@ -282,18 +285,20 @@ class _FormViewState extends State<FormView> {
 
   Widget _buildPages() {
     return PageView.builder(
-        itemCount: pages.length,
-        allowImplicitScrolling: false,
-        controller: _pageController,
-        itemBuilder: (context, i) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: pages[i],
-            ),
-          );
-        });
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: pages.length,
+      allowImplicitScrolling: false,
+      controller: _pageController,
+      itemBuilder: (context, i) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: pages[i],
+          ),
+        );
+      },
+    );
   }
 }

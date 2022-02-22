@@ -45,6 +45,7 @@ class _TextInputState extends State<TextInput> {
             },
             decoration: InputDecoration(
               //errorText: widget.error,
+              helperText: "Enter your ${widget.label.toLowerCase()}",
               fillColor: Colors.white,
               filled: true,
               border: OutlineInputBorder(
